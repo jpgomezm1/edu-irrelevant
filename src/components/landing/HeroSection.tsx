@@ -40,13 +40,13 @@ const HeroSection = () => {
       transition: {
         duration: 3,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: [0.4, 0, 0.6, 1]
       }
     }
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/10 to-background" />
       
@@ -68,9 +68,9 @@ const HeroSection = () => {
           >
             {/* Warning Badge */}
             <motion.div variants={fadeInLeft}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 border border-orange-500/30 rounded-full text-sm text-orange-200 backdrop-blur-sm">
-                <AlertTriangle className="w-4 h-4" />
-                La IA no te va a reemplazar...
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 border border-primary/30 rounded-full text-sm text-primary-light backdrop-blur-sm">
+                <Zap className="w-4 h-4" />
+                Únete a la revolución de la IA
               </div>
             </motion.div>
 
@@ -165,8 +165,14 @@ const HeroSection = () => {
               
               {/* Main image */}
               <motion.div
-                variants={floatAnimation}
-                animate="animate"
+                animate={{
+                  y: [-10, 10, -10],
+                  transition: {
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }
+                }}
                 className="relative z-10"
               >
                 <img

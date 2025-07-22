@@ -13,8 +13,8 @@
     --primary-foreground: 0 0% 100%;   /* Texto sobre primary */
     
     /* Backgrounds */
-    --background: 243 75% 19%;         /* #1E1B4B - Fondo principal */
-    --card: 243 64% 27%;              /* #3730A3 - Fondo de cards */
+    --background: 243 75% 12%;         /* Fondo más oscuro */
+    --card: 243 64% 18%;              /* Cards más oscuras */
     --card-foreground: 0 0% 100%;     /* Texto sobre cards */
     
     /* Text Colors */
