@@ -14,7 +14,152 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      classes: {
+        Row: {
+          created_at: string | null
+          description: string
+          duration_minutes: number
+          id: string
+          order_index: number
+          title: string
+          tools_used: string[]
+          track_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          duration_minutes: number
+          id?: string
+          order_index: number
+          title: string
+          tools_used?: string[]
+          track_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          duration_minutes?: number
+          id?: string
+          order_index?: number
+          title?: string
+          tools_used?: string[]
+          track_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classes_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracks: {
+        Row: {
+          color: string
+          created_at: string | null
+          description: string
+          icon_name: string
+          id: string
+          name: string
+          order_index: number
+        }
+        Insert: {
+          color: string
+          created_at?: string | null
+          description: string
+          icon_name: string
+          id?: string
+          name: string
+          order_index: number
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          description?: string
+          icon_name?: string
+          id?: string
+          name?: string
+          order_index?: number
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          ai_experience: number
+          company_size: string
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          profile_completed: boolean | null
+          work_area: string
+        }
+        Insert: {
+          ai_experience: number
+          company_size: string
+          created_at?: string | null
+          email: string
+          full_name: string
+          id: string
+          profile_completed?: boolean | null
+          work_area: string
+        }
+        Update: {
+          ai_experience?: number
+          company_size?: string
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          profile_completed?: boolean | null
+          work_area?: string
+        }
+        Relationships: []
+      }
+      user_progress: {
+        Row: {
+          class_id: string | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          class_id?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          class_id?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
