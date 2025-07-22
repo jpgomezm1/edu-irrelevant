@@ -88,6 +88,7 @@ export type Database = {
       user_profiles: {
         Row: {
           ai_experience: number
+          company_name: string | null
           company_size: string
           created_at: string | null
           email: string
@@ -98,6 +99,7 @@ export type Database = {
         }
         Insert: {
           ai_experience: number
+          company_name?: string | null
           company_size: string
           created_at?: string | null
           email: string
@@ -108,6 +110,7 @@ export type Database = {
         }
         Update: {
           ai_experience?: number
+          company_name?: string | null
           company_size?: string
           created_at?: string | null
           email?: string

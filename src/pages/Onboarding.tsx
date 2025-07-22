@@ -46,6 +46,7 @@ export const Onboarding: React.FC = () => {
 
   // Form data
   const [fullName, setFullName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [workArea, setWorkArea] = useState('');
   const [companySize, setCompanySize] = useState('');
   const [aiExperience, setAiExperience] = useState<number>(1);
@@ -55,7 +56,7 @@ export const Onboarding: React.FC = () => {
   }
 
   const handleNext = () => {
-    if (step === 1 && (!fullName || !workArea)) {
+    if (step === 1 && (!fullName || !companyName || !workArea)) {
       toast({
         title: 'Campos requeridos',
         description: 'Por favor completa todos los campos',
@@ -82,6 +83,7 @@ export const Onboarding: React.FC = () => {
         .from('user_profiles')
         .update({
           full_name: fullName,
+          company_name: companyName,
           work_area: workArea,
           company_size: companySize,
           ai_experience: aiExperience,
@@ -161,6 +163,16 @@ export const Onboarding: React.FC = () => {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Tu nombre completo"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">Nombre de la empresa</Label>
+                    <Input
+                      id="companyName"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="Nombre de tu empresa"
                       required
                     />
                   </div>

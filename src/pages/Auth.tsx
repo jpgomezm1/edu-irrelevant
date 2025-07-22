@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Brain } from 'lucide-react';
 
@@ -14,6 +15,8 @@ export const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showAccessDialog, setShowAccessDialog] = useState(false);
+  const [accessCode, setAccessCode] = useState('');
   const { user, signIn, signUp } = useAuth();
   const { toast } = useToast();
 
@@ -27,8 +30,30 @@ export const Auth: React.FC = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRegisterClick = () => {
+    if (isLogin) {
+      setIsLogin(false);
+    } else {
+      setShowAccessDialog(true);
+    }
+  };
+
+  const handleAccessCodeSubmit = () => {
+    if (accessCode.toLowerCase() === 'irrelevant crew') {
+      setShowAccessDialog(false);
+      setAccessCode('');
+      handleSubmit();
+    } else {
+      toast({
+        title: 'Código incorrecto',
+        description: 'El código de acceso no es válido',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setLoading(true);
 
     try {
@@ -90,7 +115,7 @@ export const Auth: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={isLogin ? handleSubmit : (e) => e.preventDefault()} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -115,9 +140,10 @@ export const Auth: React.FC = () => {
                   />
                 </div>
                 <Button
-                  type="submit"
+                  type={isLogin ? "submit" : "button"}
                   className="w-full"
                   disabled={loading}
+                  onClick={isLogin ? undefined : handleRegisterClick}
                 >
                   {loading ? 'Procesando...' : isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
                 </Button>
@@ -137,6 +163,51 @@ export const Auth: React.FC = () => {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Dialog de código de acceso */}
+        <Dialog open={showAccessDialog} onOpenChange={setShowAccessDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Código de Acceso Requerido</DialogTitle>
+              <DialogDescription>
+                Por favor ingresa el código de acceso para crear tu cuenta en IrRelevant Academy.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="accessCode">Código de Acceso</Label>
+                <Input
+                  id="accessCode"
+                  type="text"
+                  value={accessCode}
+                  onChange={(e) => setAccessCode(e.target.value)}
+                  placeholder="Ingresa el código de acceso"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAccessCodeSubmit();
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAccessDialog(false)}
+                  className="w-full"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleAccessCodeSubmit}
+                  className="w-full"
+                  disabled={!accessCode.trim()}
+                >
+                  Continuar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
