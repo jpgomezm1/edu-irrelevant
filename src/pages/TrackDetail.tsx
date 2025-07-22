@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as Icons from 'lucide-react';
-import { ArrowLeft, Clock, Play, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Play, CheckCircle, Target, BookOpen, TrendingUp, Award } from 'lucide-react';
 
 interface Track {
   id: string;
@@ -117,8 +117,11 @@ export const TrackDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background/95">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm text-muted-foreground">Cargando track...</p>
+        </div>
       </div>
     );
   }
@@ -136,65 +139,125 @@ export const TrackDetail: React.FC = () => {
   const completedClasses = userProgress.filter(p => p.completed).length;
   const totalClasses = classes.length;
   const progressPercentage = totalClasses > 0 ? (completedClasses / totalClasses) * 100 : 0;
+  const totalDuration = classes.reduce((acc, cls) => acc + cls.duration_minutes, 0);
+  const remainingDuration = classes
+    .filter(cls => !getClassProgress(cls.id))
+    .reduce((acc, cls) => acc + cls.duration_minutes, 0);
 
   const handleClassClick = (classId: string) => {
     navigate(`/class/${classId}`);
   };
 
+  const formatTime = (minutes: number) => {
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background/95">
       <Header />
       
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/dashboard')}
-          className="mb-6"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver al Dashboard
-        </Button>
-
-        {/* Track Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
         >
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <div className="flex items-start gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/dashboard')}
+            className="mb-8 hover:bg-primary/10"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver al Dashboard
+          </Button>
+        </motion.div>
+
+        {/* Track Header Hero */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mb-12"
+        >
+          <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-2xl overflow-hidden">
+            {/* Header accent */}
+            <div 
+              className="h-2 w-full"
+              style={{ backgroundColor: track.color }}
+            />
+            
+            <CardHeader className="pb-8">
+              <div className="flex items-start gap-6">
                 <div 
-                  className="flex items-center justify-center w-16 h-16 rounded-xl"
-                  style={{ backgroundColor: `${track.color}20`, color: track.color }}
+                  className="flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg"
+                  style={{ backgroundColor: `${track.color}15`, color: track.color, border: `2px solid ${track.color}30` }}
                 >
-                  {IconComponent && <IconComponent className="h-8 w-8" />}
+                  {IconComponent && <IconComponent className="h-10 w-10" />}
                 </div>
                 
                 <div className="flex-1">
-                  <CardTitle className="text-2xl text-card-foreground mb-2">
+                  <CardTitle className="text-3xl font-bold text-foreground mb-3">
                     {track.name}
                   </CardTitle>
-                  <p className="text-muted-foreground mb-4">
+                  <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                     {track.description}
                   </p>
                   
+                  {/* Stats Row */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
+                      <BookOpen className="h-4 w-4 text-primary" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Clases</p>
+                        <p className="font-semibold text-foreground">{totalClasses}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 rounded-lg">
+                      <Clock className="h-4 w-4 text-blue-500" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Duración</p>
+                        <p className="font-semibold text-foreground">{formatTime(totalDuration)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 rounded-lg">
+                      <TrendingUp className="h-4 w-4 text-green-500" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Progreso</p>
+                        <p className="font-semibold text-foreground">{Math.round(progressPercentage)}%</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-orange-500/10 rounded-lg">
+                      <Target className="h-4 w-4 text-orange-500" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Restante</p>
+                        <p className="font-semibold text-foreground">{formatTime(remainingDuration)}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Progress Bar */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Progreso del track</span>
-                      <span className="text-card-foreground font-medium">
-                        {completedClasses}/{totalClasses} clases completadas
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Progreso del track</span>
+                      <span className="text-sm font-bold" style={{ color: track.color }}>
+                        {completedClasses}/{totalClasses} completadas
                       </span>
                     </div>
-                    <Progress 
-                      value={progressPercentage} 
-                      className="h-3"
-                      style={{
-                        '--progress-color': track.color
-                      } as React.CSSProperties}
-                    />
+                    <div className="relative">
+                      <div className="w-full bg-muted/30 rounded-full h-3 overflow-hidden border border-muted/20">
+                        <div 
+                          className="h-3 rounded-full transition-all duration-700 ease-out shadow-sm"
+                          style={{
+                            background: `linear-gradient(90deg, ${track.color}, ${track.color}90)`,
+                            width: `${progressPercentage}%`
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -202,13 +265,30 @@ export const TrackDetail: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Classes List */}
+        {/* Classes Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <h2 className="text-xl font-semibold text-foreground mb-6">Clases</h2>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">
+                Clases del Track
+              </h2>
+              <p className="text-muted-foreground">
+                Sigue el orden sugerido para maximizar tu aprendizaje
+              </p>
+            </div>
+            
+            {/* Achievement badge */}
+            {progressPercentage === 100 && (
+              <Badge className="bg-yellow-500/15 text-yellow-600 border-yellow-500/30 px-4 py-2">
+                <Award className="w-4 h-4 mr-2" />
+                Track Completado
+              </Badge>
+            )}
+          </div>
           
           <div className="space-y-4">
             {classes.map((classItem, index) => {
@@ -217,46 +297,69 @@ export const TrackDetail: React.FC = () => {
               return (
                 <motion.div
                   key={classItem.id}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 * index }}
+                  transition={{ duration: 0.4, delay: 0.1 * index }}
                 >
                   <Card 
-                    className="cursor-pointer hover:shadow-card transition-all duration-200 bg-card border-border group"
+                    className="cursor-pointer bg-background/60 backdrop-blur-sm border border-white/20 hover:border-white/30 transition-all duration-300 group shadow-lg hover:shadow-xl"
                     onClick={() => handleClassClick(classItem.id)}
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0">
+                        {/* Status Icon */}
+                        <div className="flex-shrink-0 mt-1">
                           {isCompleted ? (
-                            <CheckCircle className="h-6 w-6 text-success" />
+                            <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                            </div>
                           ) : (
-                            <Play className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                              <Play className="h-4 w-4 text-primary ml-0.5" />
+                            </div>
                           )}
                         </div>
                         
                         <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="text-lg font-medium text-card-foreground group-hover:text-primary transition-colors">
-                              {classItem.title}
-                            </h3>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Clock className="h-4 w-4" />
-                              {classItem.duration_minutes} min
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
+                                {classItem.title}
+                              </h3>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-4 w-4" />
+                                  {classItem.duration_minutes} minutos
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="w-2 h-2 bg-primary rounded-full"></span>
+                                  Clase #{index + 1}
+                                </div>
+                              </div>
                             </div>
+                            
+                            {isCompleted && (
+                              <Badge className="bg-green-500/15 text-green-600 border-green-500/30">
+                                Completada
+                              </Badge>
+                            )}
                           </div>
                           
-                          <p className="text-muted-foreground mb-3">
+                          <p className="text-muted-foreground mb-4 leading-relaxed">
                             {classItem.description}
                           </p>
                           
+                          {/* Tools */}
                           {classItem.tools_used.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                              {classItem.tools_used.map((tool) => (
-                                <Badge key={tool} variant="secondary" className="text-xs">
-                                  {tool}
-                                </Badge>
-                              ))}
+                            <div className="space-y-2">
+                              <p className="text-xs font-medium text-muted-foreground">Herramientas:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {classItem.tools_used.map((tool) => (
+                                  <Badge key={tool} variant="outline" className="bg-muted/20 text-xs border-muted-foreground/30">
+                                    {tool}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </div>

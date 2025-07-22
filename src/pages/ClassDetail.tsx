@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/Header';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ArrowRight, Clock, CheckCircle, Play } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Clock, CheckCircle, Play, Target, BookOpen, Lightbulb, Star } from 'lucide-react';
 
 interface Class {
   id: string;
@@ -172,8 +173,11 @@ export const ClassDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background/95">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm text-muted-foreground">Cargando clase...</p>
+        </div>
       </div>
     );
   }
@@ -185,64 +189,78 @@ export const ClassDetail: React.FC = () => {
   const isCompleted = userProgress?.completed || false;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background/95">
       <Header />
       
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate(`/track/${classData.track_id}`)}
-          className="mb-6"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver al Track
-        </Button>
-
-        {/* Class Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
+        >
+          <Button
+            variant="ghost"
+            onClick={() => navigate(`/track/${classData.track_id}`)}
+            className="mb-8 hover:bg-primary/10"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver al Track
+          </Button>
+        </motion.div>
+
+        {/* Class Header Hero */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="mb-8"
         >
-          <Card className="bg-card border-border">
-            <CardHeader>
+          <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-2xl overflow-hidden">
+            {/* Header accent */}
+            {track && (
+              <div 
+                className="h-2 w-full"
+                style={{ backgroundColor: track.color }}
+              />
+            )}
+            
+            <CardHeader className="pb-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-4">
                     {track && (
                       <Badge 
-                        variant="secondary" 
-                        style={{ backgroundColor: `${track.color}20`, color: track.color }}
+                        className="text-white font-medium"
+                        style={{ backgroundColor: track.color }}
                       >
                         {track.name}
                       </Badge>
                     )}
                     {isCompleted && (
-                      <Badge variant="default" className="bg-success text-white">
+                      <Badge className="bg-green-500/15 text-green-400 border-green-500/30">
                         <CheckCircle className="mr-1 h-3 w-3" />
                         Completada
                       </Badge>
                     )}
                   </div>
                   
-                  <CardTitle className="text-2xl text-card-foreground mb-3">
+                  <CardTitle className="text-3xl font-bold text-foreground mb-4 leading-tight">
                     {classData.title}
                   </CardTitle>
                   
-                  <p className="text-muted-foreground mb-4">
+                  <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                     {classData.description}
                   </p>
                   
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {classData.duration_minutes} minutos
+                  <div className="flex items-center gap-6 text-sm">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-full">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="text-foreground font-medium">{classData.duration_minutes} minutos</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Play className="h-4 w-4" />
-                      Clase interactiva
+                    <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 rounded-full">
+                      <Play className="h-4 w-4 text-blue-500" />
+                      <span className="text-foreground font-medium">Clase interactiva</span>
                     </div>
                   </div>
                 </div>
@@ -251,91 +269,175 @@ export const ClassDetail: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Tools Section */}
-        {classData.tools_used.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-8"
-          >
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-lg text-card-foreground">
-                  Herramientas que utilizarás
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {classData.tools_used.map((tool) => (
-                    <Badge key={tool} variant="outline" className="text-sm">
-                      {tool}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Learning Objectives */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-xl text-foreground flex items-center gap-2">
+                    <Target className="h-5 w-5 text-primary" />
+                    Lo que aprenderás
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
+                      <BookOpen className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-foreground">Conceptos fundamentales</h4>
+                        <p className="text-sm text-muted-foreground">Aplicaciones prácticas y fundamentos teóricos</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
+                      <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-foreground">Mejores prácticas</h4>
+                        <p className="text-sm text-muted-foreground">Casos de uso reales y estrategias probadas</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
+                      <Lightbulb className="h-5 w-5 text-orange-500 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-foreground">Implementación práctica</h4>
+                        <p className="text-sm text-muted-foreground">Ejercicios paso a paso para aplicar inmediatamente</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-        {/* Class Content */}
+            {/* Class Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-xl text-foreground">
+                    Contenido de la clase
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="prose prose-sm max-w-none text-muted-foreground">
+                    <p className="text-base leading-relaxed">
+                      Esta es una clase interactiva donde aprenderás sobre {classData.title.toLowerCase()}. 
+                      El contenido incluye ejemplos prácticos y ejercicios que puedes aplicar inmediatamente 
+                      en tu trabajo diario.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
+                        <Lightbulb className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">💡 Consejo Pro</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Ten a mano las herramientas mencionadas para poder practicar mientras sigues la clase. 
+                          La práctica activa acelera significativamente tu aprendizaje.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Tools Section */}
+            {classData.tools_used.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-foreground">
+                      🛠️ Herramientas
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {classData.tools_used.map((tool) => (
+                        <Badge key={tool} variant="outline" className="bg-muted/20 border-muted-foreground/30">
+                          {tool}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Progress Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-lg text-foreground">
+                    📈 Tu Progreso
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isCompleted ? (
+                    <div className="text-center p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                      <p className="font-semibold text-green-600">¡Completada!</p>
+                      <p className="text-xs text-green-600/80">Excelente trabajo</p>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={handleMarkComplete}
+                      disabled={markingComplete}
+                      className="w-full h-12 bg-gradient-primary hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02]"
+                    >
+                      {markingComplete ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          Marcando...
+                        </div>
+                      ) : (
+                        <>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Marcar como completada
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Navigation Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-8"
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="flex flex-col sm:flex-row gap-4 justify-between mt-12 pt-8 border-t border-white/10"
         >
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="text-lg text-card-foreground">
-                Contenido de la clase
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-sm max-w-none">
-              <div className="space-y-4 text-muted-foreground">
-                <p>
-                  Esta es una clase interactiva donde aprenderás sobre {classData.title.toLowerCase()}. 
-                  El contenido incluye ejemplos prácticos y ejercicios que puedes aplicar inmediatamente 
-                  en tu trabajo.
-                </p>
-                
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <h4 className="font-semibold text-card-foreground mb-2">Lo que aprenderás:</h4>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>Conceptos fundamentales y aplicaciones prácticas</li>
-                    <li>Mejores prácticas y casos de uso reales</li>
-                    <li>Ejercicios paso a paso para implementar inmediatamente</li>
-                    <li>Tips y trucos de profesionales experimentados</li>
-                  </ul>
-                </div>
-                
-                <p>
-                  <strong>Duración estimada:</strong> {classData.duration_minutes} minutos
-                </p>
-                
-                <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
-                  <p className="text-sm">
-                    💡 <strong>Consejo:</strong> Ten a mano las herramientas mencionadas arriba 
-                    para poder practicar mientras sigues la clase.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4 justify-between"
-        >
-          <div className="flex gap-2">
+          <div>
             {prevClass && (
               <Button
                 variant="outline"
                 onClick={() => navigate(`/class/${prevClass.id}`)}
+                className="hover:bg-primary/10"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Clase anterior
@@ -343,21 +445,16 @@ export const ClassDetail: React.FC = () => {
             )}
           </div>
 
-          <div className="flex gap-2">
-            {!isCompleted && (
-              <Button
-                onClick={handleMarkComplete}
-                disabled={markingComplete}
-                className="bg-success hover:bg-success/90 text-white"
-              >
-                {markingComplete ? 'Marcando...' : 'Marcar como completada'}
-                <CheckCircle className="ml-2 h-4 w-4" />
-              </Button>
-            )}
-            
+          <div className="flex gap-3">
             {nextClass && (
               <Button
                 onClick={() => navigate(`/class/${nextClass.id}`)}
+                className={cn(
+                  "h-12 px-6",
+                  isCompleted 
+                    ? "bg-gradient-primary hover:opacity-90" 
+                    : "border-primary/50 hover:bg-primary/10"
+                )}
                 variant={isCompleted ? "default" : "outline"}
               >
                 Siguiente clase

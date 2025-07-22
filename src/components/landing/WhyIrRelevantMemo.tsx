@@ -66,7 +66,7 @@ const WhyIrRelevantMemo = () => {
                 <div className="text-center mb-10">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm text-primary mb-6">
                     <Lightbulb className="w-4 h-4" />
-                    Memo interno
+                    Memo irrelevant
                   </div>
                   
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
