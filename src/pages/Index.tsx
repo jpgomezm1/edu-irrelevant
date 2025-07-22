@@ -7,6 +7,8 @@ import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import ValueStackSection from '@/components/landing/ValueStackSection';
 import SocialProofSection from '@/components/landing/SocialProofSection';
 import FAQSection from '@/components/landing/FAQSection';
+import Footer from '@/components/landing/Footer';
+import WhyIrRelevantMemo from '@/components/landing/WhyIrRelevantMemo';
 
 const Index = () => {
   return (
@@ -14,13 +16,15 @@ const Index = () => {
       <Navigation />
       <div className="pt-16">
         <HeroSection />
-      <ROICalculator />
-      <PricingSection />
-      <TestimonialsSection />
-      <ValueStackSection />
-        <SocialProofSection />
+        <WhyIrRelevantMemo />
+        <ROICalculator />
+        <PricingSection />
+        {/* <TestimonialsSection /> */}
+        <ValueStackSection />
+        {/* <SocialProofSection /> */}
         <FAQSection />
       </div>
+      <Footer />
     </div>
   );
 };

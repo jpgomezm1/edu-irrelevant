@@ -1,41 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useForm } from 'react-hook-form';
-import CountUp from 'react-countup';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Calculator, TrendingUp } from 'lucide-react';
-
-interface CalculatorForm {
-  hours: number;
-  salary: number;
-  area: string;
-}
+import { Lightbulb, Code, Compass, ArrowRight } from 'lucide-react';
 
 const ROICalculator = () => {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 });
-  const [calculatedROI, setCalculatedROI] = useState(0);
-  const [hours, setHours] = useState([20]);
-  const [salary, setSalary] = useState(60000);
-  const [area, setArea] = useState('');
-
-  const calculateROI = () => {
-    const hourlyRate = salary / 2080; // horas anuales
-    const timeSaved = hours[0] * 0.6; // 60% ahorro promedio
-    const monthlySaving = timeSaved * hourlyRate * 4.33;
-    const annualSaving = monthlySaving * 12;
-    setCalculatedROI(annualSaving);
-  };
-
-  React.useEffect(() => {
-    if (salary && hours[0] && area) {
-      calculateROI();
-    }
-  }, [salary, hours, area]);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 60 },
@@ -43,163 +14,120 @@ const ROICalculator = () => {
     transition: { duration: 0.6, ease: "easeOut" }
   };
 
-  const salaryRanges = [
-    { value: 30000, label: '$30K - $40K' },
-    { value: 50000, label: '$40K - $60K' },
-    { value: 70000, label: '$60K - $80K' },
-    { value: 90000, label: '$80K - $100K' },
-    { value: 120000, label: '$100K - $150K' },
-    { value: 175000, label: '$150K - $200K' },
-    { value: 250000, label: '$200K+' }
-  ];
+  const staggerContainer = {
+    animate: {
+      transition: { staggerChildren: 0.15 }
+    }
+  };
 
-  const workAreas = [
-    'Finanzas',
-    'Planeación',
-    'Ventas',
-    'Marketing',
-    'Legal',
-    'RRHH',
-    'Operaciones',
-    'Dirección'
+  const features = [
+    {
+      icon: Lightbulb,
+      title: "Aprende",
+      description: "Domina los conceptos fundamentales y aprende a usar los agentes más avanzados de IA para potenciar tu trabajo.",
+    },
+    {
+      icon: Code,
+      title: "Construye",
+      description: "Crea aplicaciones y automatizaciones personalizadas que eliminen tareas repetitivas de tu día a día.",
+    },
+    {
+      icon: Compass,
+      title: "Descubre",
+      description: "Explora herramientas existentes y técnicas probadas que multiplicarán tu productividad desde el primer día.",
+    }
   ];
 
   return (
-    <section className="py-20 px-4" ref={ref}>
-      <div className="max-w-6xl mx-auto">
+    <section className="py-24 px-4 bg-muted/20" ref={ref}>
+      <div className="max-w-7xl mx-auto">
         <motion.div
           initial="initial"
           animate={inView ? "animate" : "initial"}
           variants={fadeInUp}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-success/20 border border-success/30 rounded-full text-sm text-success mb-6">
-            <Calculator className="w-4 h-4" />
-            Calculadora ROI
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Calcula tu Retorno de Inversión
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+            Tu camino hacia el dominio de la IA
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Descubre cuánto puede ahorrar tu empresa implementando IA
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Una metodología probada que te llevará desde los conceptos básicos hasta implementar 
+            soluciones que transformen tu productividad profesional
           </p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-4xl mx-auto"
+          variants={staggerContainer}
+          initial="initial"
+          animate={inView ? "animate" : "initial"}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16"
         >
-          <Card className="p-8 bg-card/50 backdrop-blur-sm border border-border/50 shadow-elegant">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Form */}
-              <div className="space-y-6">
-                <div>
-                  <Label className="text-base font-semibold text-foreground">
-                    Horas semanales de trabajo: {hours[0]}h
-                  </Label>
-                  <div className="mt-3">
-                    <Slider
-                      value={hours}
-                      onValueChange={setHours}
-                      max={40}
-                      min={10}
-                      step={5}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground mt-1">
-                      <span>10h</span>
-                      <span>40h</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-base font-semibold text-foreground">
-                    Rango salarial anual
-                  </Label>
-                  <Select value={salary.toString()} onValueChange={(value) => setSalary(Number(value))}>
-                    <SelectTrigger className="mt-3">
-                      <SelectValue placeholder="Selecciona tu rango salarial" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {salaryRanges.map((range) => (
-                        <SelectItem key={range.value} value={range.value.toString()}>
-                          {range.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label className="text-base font-semibold text-foreground">
-                    Área de trabajo
-                  </Label>
-                  <Select value={area} onValueChange={setArea}>
-                    <SelectTrigger className="mt-3">
-                      <SelectValue placeholder="Selecciona tu área" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {workAreas.map((workArea) => (
-                        <SelectItem key={workArea} value={workArea}>
-                          {workArea}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Results */}
-              <div className="flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-32 h-32 mx-auto mb-6 bg-gradient-primary rounded-full flex items-center justify-center">
-                    <TrendingUp className="w-12 h-12 text-primary-foreground" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <p className="text-lg text-muted-foreground">Ahorro anual estimado</p>
-                    <div className="text-4xl md:text-5xl font-bold text-success">
-                      {calculatedROI > 0 && (
-                        <CountUp
-                          end={calculatedROI}
-                          duration={2}
-                          prefix="$"
-                          separator=","
-                          decimals={0}
-                        />
-                      )}
-                    </div>
-                    {calculatedROI > 0 && (
-                      <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-sm text-muted-foreground"
-                      >
-                        ROI de {Math.round((calculatedROI / 497) * 100)}% en el primer año
-                      </motion.p>
-                    )}
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.title}
+              variants={fadeInUp}
+              whileHover={{ y: -8 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="p-8 h-full bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:shadow-xl transition-all duration-300">
+                <div className="flex flex-col items-center text-center h-full">
+                  {/* Step number */}
+                  <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
+                    <span className="text-lg font-bold text-primary">{index + 1}</span>
                   </div>
 
-                  {calculatedROI > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 }}
-                      className="mt-6"
-                    >
-                      <Button
-                        onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="bg-success hover:bg-success/90"
-                      >
-                        Ver Planes
-                      </Button>
-                    </motion.div>
-                  )}
+                  {/* Icon */}
+                  <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 mb-6">
+                    <feature.icon className="w-8 h-8 text-primary" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-foreground mb-4">
+                      {feature.title}
+                    </h3>
+                    <p className="text-muted-foreground text-base leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Enhanced CTA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="text-center"
+        >
+          <Card className="max-w-4xl mx-auto p-8 bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 backdrop-blur-sm">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+              ¿Listo para multiplicar tu productividad?
+            </h3>
+            <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
+              Únete a profesionales que ya están automatizando tareas y aumentando sus ingresos con IA
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+                className="text-lg px-8 py-4 bg-gradient-primary hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-elegant"
+              >
+                Comenzar ahora
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' })}
+                className="text-lg px-8 py-4 border-primary/30 hover:bg-primary/10"
+              >
+                Ver casos de éxito
+              </Button>
             </div>
           </Card>
         </motion.div>

@@ -6,7 +6,7 @@ import CountUp from 'react-countup';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Star, Zap, Crown } from 'lucide-react';
+import { Check, Zap, Crown, Mail } from 'lucide-react';
 
 const PricingSection = () => {
   const navigate = useNavigate();
@@ -26,85 +26,57 @@ const PricingSection = () => {
 
   const plans = [
     {
-      name: 'Básico',
-      price: 197,
-      target: 'Profesionales individuales',
-      badge: 'INDIVIDUAL',
-      badgeColor: 'bg-secondary',
-      icon: Star,
+      name: 'Sobreviviente',
+      price: 25,
+      description: 'Lo básico para no quedarte atrás',
+      badge: null,
       popular: false,
       features: [
-        'Acceso a Fundamentos IA + 2 tracks especializados',
-        '20+ clases prácticas',
-        'Comunidad exclusiva',
-        'Certificado básico IrRelevant',
-        'Soporte por email',
-        'Actualizaciones mensuales'
+        'Todos los cursos y tracks',
+        'Certificados de finalización',
+        'Actualizaciones mensuales',
+        'Soporte por email'
       ],
-      cta: 'Empezar Plan Básico',
-      idealFor: 'CEOs, Gerentes, Consultores independientes',
-      plan: 'basic'
+      cta: 'Empezar a sobrevivir',
+      plan: 'survivor'
     },
     {
-      name: 'Professional',
-      price: 497,
-      target: 'Equipos pequeños (2-10 personas)',
-      badge: 'MÁS POPULAR',
-      badgeColor: 'bg-primary',
-      icon: Zap,
+      name: 'Dominador',
+      price: 49,
+      originalPrice: 79,
+      description: 'Para los que quieren dominar de verdad',
+      badge: 'POPULAR',
       popular: true,
       features: [
-        'Todos los 8 tracks completos (50+ clases)',
-        'Casos reales de Fortune 500',
-        'Certificaciones avanzadas IrRelevant',
-        'Soporte prioritario + webinars mensuales',
-        'Templates y herramientas exclusivas',
-        'Dashboard de progreso del equipo',
-        'Implementación guiada por consultores',
-        'Actualizaciones semanales'
+        'Todo lo anterior +',
+        'Comunidad exclusiva',
+        'Templates y recursos premium',
+        'Webinars en vivo',
+        'Soporte prioritario'
       ],
-      cta: 'Empezar Plan Professional',
-      idealFor: 'Equipos de marketing, ventas, operaciones',
-      discount: 'Ahorra $1,500/año vs plan básico por persona',
-      plan: 'professional'
+      cta: 'Quiero dominar',
+      plan: 'dominator'
     },
     {
-      name: 'Enterprise',
-      price: 2997,
-      target: 'Empresas grandes (equipos ilimitados)',
+      name: 'Conquistador',
+      price: null,
+      description: 'Transforma toda tu empresa',
       badge: 'ENTERPRISE',
-      badgeColor: 'bg-warning',
-      icon: Crown,
       popular: false,
       features: [
-        'Todo lo del plan Professional',
-        'Usuarios ilimitados de la empresa',
-        'Workshops personalizados exclusivos',
-        'Consultor dedicado asignado',
-        'Implementación completa guiada',
-        'ROI tracking personalizado por empresa',
-        'Integraciones personalizadas',
-        'SLA de soporte 24/7',
-        'Reportes ejecutivos mensuales'
+        'Todo personalizado',
+        'Consultor dedicado',
+        'Workshops on-site',
+        'ROI garantizado'
       ],
-      cta: 'Agendar Demo Enterprise',
-      idealFor: 'Corporaciones, multinacionales, empresas 200+ empleados',
-      guarantee: 'ROI garantizado o reembolso completo',
-      plan: 'enterprise'
+      cta: 'Hablemos',
+      plan: 'conqueror'
     }
   ];
 
-  const cardHover = {
-    hover: { 
-      scale: 1.02, 
-      y: -8,
-      transition: { duration: 0.3 }
-    }
-  };
-
   return (
-    <section id="pricing" className="py-20 px-4" ref={ref}>
-      <div className="max-w-7xl mx-auto">
+    <section id="pricing" className="py-24 px-4" ref={ref}>
+      <div className="max-w-6xl mx-auto">
         <motion.div
           initial="initial"
           animate={inView ? "animate" : "initial"}
@@ -112,10 +84,10 @@ const PricingSection = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Planes que se Adaptan a tu Empresa
+            No todos los héroes llevan capa
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Desde profesionales individuales hasta equipos enterprise
+          <p className="text-xl text-muted-foreground">
+            Pero todos necesitan el plan correcto
           </p>
         </motion.div>
 
@@ -123,90 +95,91 @@ const PricingSection = () => {
           variants={staggerContainer}
           initial="initial"
           animate={inView ? "animate" : "initial"}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          {plans.map((plan, index) => {
-            const IconComponent = plan.icon;
-            return (
-              <motion.div
-                key={plan.name}
-                variants={fadeInUp}
-                whileHover="hover"
-              >
-                <Card
-                  className={`relative p-8 h-full transition-all duration-300 ${
-                    plan.popular 
-                      ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary shadow-elegant' 
-                      : 'bg-card/50 backdrop-blur-sm border-border/50'
-                  }`}
-                >
-                  {/* Badge */}
-                  <div className="flex items-center justify-between mb-6">
-                    <Badge className={`${plan.badgeColor} text-primary-foreground px-3 py-1`}>
+          {plans.map((plan, index) => (
+            <motion.div
+              key={plan.name}
+              variants={fadeInUp}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className={`p-6 h-full transition-all duration-300 relative ${
+                plan.popular 
+                  ? 'border-primary bg-primary/5 shadow-lg' 
+                  : 'border-border/50 bg-card/60 hover:border-primary/20'
+              }`}>
+                
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-primary text-primary-foreground px-3 py-1 font-medium">
                       {plan.badge}
                     </Badge>
-                    <IconComponent className="w-8 h-8 text-primary" />
                   </div>
+                )}
 
-                  {/* Plan info */}
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{plan.target}</p>
-                    
-                    <div className="flex items-baseline mb-4">
-                      <span className="text-4xl font-bold text-foreground">
-                        {inView && (
-                          <CountUp end={plan.price} prefix="$" duration={2} />
-                        )}
-                      </span>
-                      <span className="text-muted-foreground ml-1">/mes</span>
-                    </div>
-
-                    {plan.discount && (
-                      <p className="text-sm text-success font-medium">{plan.discount}</p>
-                    )}
-                  </div>
-
-                  {/* Features */}
-                  <div className="space-y-3 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{feature}</span>
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
+                  <p className="text-muted-foreground text-sm mb-4">{plan.description}</p>
+                  
+                  {plan.price ? (
+                    <div className="mb-2">
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-3xl font-bold text-foreground">
+                          {inView && <CountUp end={plan.price} prefix="$" duration={1.5} />}
+                        </span>
+                        <span className="text-muted-foreground">/mes</span>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* CTA */}
-                  <div className="space-y-4">
-                    <Button
-                      className={`w-full ${
-                        plan.popular 
-                          ? 'bg-primary hover:bg-primary/90' 
-                          : 'bg-secondary hover:bg-secondary/80'
-                      }`}
-                      onClick={() => navigate(`/auth?plan=${plan.plan}`)}
-                    >
-                      {plan.cta}
-                    </Button>
-
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground font-medium">
-                        Ideal para:
-                      </p>
-                      <p className="text-sm text-foreground">{plan.idealFor}</p>
-                      
-                      {plan.guarantee && (
-                        <p className="text-xs text-success mt-2 font-medium">
-                          {plan.guarantee}
+                      {plan.originalPrice && (
+                        <p className="text-sm text-muted-foreground line-through">
+                          Antes ${plan.originalPrice}
                         </p>
                       )}
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            );
-          })}
+                  ) : (
+                    <div className="text-2xl font-bold text-foreground mb-2">
+                      Precio custom
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  {plan.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  className={`w-full ${
+                    plan.popular 
+                      ? 'bg-primary hover:bg-primary/90' 
+                      : 'bg-secondary hover:bg-secondary/80'
+                  }`}
+                  onClick={() => {
+                    if (plan.plan === 'conqueror') {
+                      window.location.href = 'mailto:hola@irrelevant.com';
+                    } else {
+                      navigate(`/auth?plan=${plan.plan}`);
+                    }
+                  }}
+                >
+                  {plan.plan === 'conqueror' && <Mail className="w-4 h-4 mr-2" />}
+                  {plan.cta}
+                </Button>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ delay: 0.6 }}
+          className="text-center mt-12"
+        >
         </motion.div>
       </div>
     </section>
