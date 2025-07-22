@@ -68,24 +68,24 @@ const HeroSection = () => {
           >
             {/* Warning Badge */}
             <motion.div variants={fadeInLeft}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 border border-primary/30 rounded-full text-sm text-primary-light backdrop-blur-sm">
-                <Zap className="w-4 h-4" />
-                Únete a la revolución de la IA
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 border border-orange-500/30 rounded-full text-sm text-orange-200 backdrop-blur-sm">
+                <AlertTriangle className="w-4 h-4" />
+                La IA no te va a reemplazar...
               </div>
             </motion.div>
 
             {/* Headlines */}
             <motion.div variants={fadeInLeft} className="space-y-6">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 <span className="text-foreground">...pero sí a quien</span>
                 <br />
-                <span className="text-foreground">la use</span>{' '}
+                <span className="text-foreground">la use</span>{" "}
                 <span className="bg-gradient-primary bg-clip-text text-transparent">
                   mejor que tú
                 </span>
               </h1>
               
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg">
                 Aprende a <span className="text-primary font-semibold">automatizar tareas</span>, <span className="text-primary font-semibold">crear código sin programar</span> y <span className="text-primary font-semibold">multiplicar tu productividad</span>
               </p>
             </motion.div>
