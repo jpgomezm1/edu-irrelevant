@@ -67,6 +67,14 @@ const trackCourses = {
     { title: 'Curso 3 (Make): "Flujo de agendamiento con seguimiento automático"', classCount: 5 },
     { title: 'Curso 4 (Gumloop): "Dashboard de ventas automático (sin saber BI)"', classCount: 5 },
     { title: 'Curso 5 (Zapier): "Bot de atención básica 24/7 con FAQs y captura de datos"', classCount: 5 },
+  ],
+  // ID del Track 'Vibe Coding'
+  '1ab56cb1-43f6-42db-b799-c3009ce6b76b': [
+    { title: 'Curso 1: "Instala lo que nunca pensaste instalar (y no te asustes)"', classCount: 5 },
+    { title: 'Curso 2: "Lovable: tu primer app sin backend ni estrés"', classCount: 5 },
+    { title: 'Curso 3: "Cursor: programá como si tuvieras un copiloto que sí sabe"', classCount: 5 },
+    { title: 'Curso 4: "Replit: tu laboratorio de experimentos sin instalar nada"', classCount: 5 },
+    { title: 'Curso 5: "Construí una mini app real desde cero (sí, vos)"', classCount: 5 },
   ]
 };
 
