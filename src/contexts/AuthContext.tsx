@@ -2,10 +2,19 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+// Tipos para el perfil y progreso
+interface UserProfile {
+  full_name: string;
+  work_area: string;
+  profile_completed: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  userProfile: UserProfile | null;
+  overallProgress: number;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -25,18 +34,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [overallProgress, setOverallProgress] = useState<number>(0);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        if (!session) {
+          // Limpiar datos al cerrar sesión
+          setUserProfile(null);
+          setOverallProgress(0);
+        }
         setLoading(false);
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -45,6 +59,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Nuevo useEffect para cargar datos del perfil y progreso
+  useEffect(() => {
+    if (user?.id) {
+      const fetchData = async () => {
+        // Fetch user profile
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('full_name, work_area, profile_completed')
+          .eq('id', user.id)
+          .single();
+        setUserProfile(profile);
+
+        // Fetch and calculate overall progress
+        const { data: progressData } = await supabase
+          .from('user_progress')
+          .select('class_id')
+          .eq('user_id', user.id)
+          .eq('completed', true);
+
+        const { count: totalClassesCount } = await supabase
+          .from('classes')
+          .select('id', { count: 'exact' });
+
+        if (progressData && totalClassesCount && totalClassesCount > 0) {
+          const progressPercentage = (progressData.length / totalClassesCount) * 100;
+          setOverallProgress(progressPercentage);
+        }
+      };
+      fetchData();
+    }
+  }, [user]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -90,6 +136,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
+    userProfile,
+    overallProgress,
     signIn,
     signUp,
     signOut,

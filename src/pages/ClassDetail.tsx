@@ -86,7 +86,7 @@ export const ClassDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [markingComplete, setMarkingComplete] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const { user } = useAuth();
+  const { user, userProfile: contextUserProfile, overallProgress } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -298,7 +298,7 @@ export const ClassDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background/95">
-      <Header />
+      <Header userProfile={contextUserProfile} overallProgress={overallProgress} />
       
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}

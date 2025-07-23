@@ -93,8 +93,7 @@ export const TrackDetail: React.FC = () => {
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
   const [earnedCertificates, setEarnedCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const { user } = useAuth();
+  const { user, userProfile, overallProgress } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -152,16 +151,6 @@ export const TrackDetail: React.FC = () => {
 
         if (!progressError) {
           setUserProgress(progressData || []);
-        }
-
-        // Fetch user profile
-        const { data: profileData } = await supabase
-          .from('user_profiles')
-          .select('full_name')
-          .eq('id', user.id)
-          .single();
-        if (profileData) {
-          setUserProfile(profileData);
         }
 
         // Fetch earned certificates
@@ -286,7 +275,7 @@ export const TrackDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background/95">
-      <Header />
+      <Header userProfile={userProfile} overallProgress={overallProgress} />
       
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
