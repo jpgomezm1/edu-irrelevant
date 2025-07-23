@@ -40,7 +40,7 @@ const aiExperienceOptions = [
 export const Onboarding: React.FC = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, refreshUserData } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -92,18 +92,17 @@ export const Onboarding: React.FC = () => {
         .eq('id', user.id);
 
       if (error) {
-        toast({
-          title: 'Error',
-          description: 'Hubo un problema al guardar tu perfil',
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: '¡Bienvenido!',
-          description: 'Tu perfil ha sido completado exitosamente',
-        });
-        navigate('/dashboard');
+        throw error;
       }
+
+      // Actualizar el estado global del usuario ANTES de navegar
+      await refreshUserData();
+
+      toast({
+        title: '¡Bienvenido!',
+        description: 'Tu perfil ha sido completado exitosamente',
+      });
+      navigate('/dashboard');
     } catch (error) {
       toast({
         title: 'Error',
