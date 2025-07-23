@@ -65,6 +65,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         data: userData
       }
     });
+
+    // Si el registro fue exitoso, invoca la función para enviar el correo
+    if (!error) {
+      try {
+        await supabase.functions.invoke('send-welcome-email', {
+          body: { email },
+        });
+      } catch (functionError) {
+        // Opcional: Manejar el error si el correo no se pudo enviar,
+        // pero sin bloquear al usuario, ya que el registro fue exitoso.
+        console.error('Error sending welcome email:', functionError);
+      }
+    }
+
     return { error };
   };
 
