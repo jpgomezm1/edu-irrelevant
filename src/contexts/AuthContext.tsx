@@ -15,6 +15,7 @@ interface AuthContextType {
   loading: boolean;
   userProfile: UserProfile | null;
   overallProgress: number;
+  refreshUserData: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -37,13 +38,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [overallProgress, setOverallProgress] = useState<number>(0);
 
+  // Nueva función para recargar datos del usuario
+  const refreshUserData = async () => {
+    if (!user?.id) return;
+
+    // Fetch user profile
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('full_name, work_area, profile_completed')
+      .eq('id', user.id)
+      .single();
+    setUserProfile(profile);
+
+    // Fetch and calculate overall progress
+    const { data: progressData } = await supabase
+      .from('user_progress')
+      .select('class_id', { count: 'exact' })
+      .eq('user_id', user.id)
+      .eq('completed', true);
+
+    const { count: totalClassesCount } = await supabase
+      .from('classes')
+      .select('id', { count: 'exact' });
+
+    if (progressData && totalClassesCount && totalClassesCount > 0) {
+      const progressPercentage = (progressData.length / totalClassesCount) * 100;
+      setOverallProgress(progressPercentage);
+    } else {
+      setOverallProgress(0);
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (!session) {
-          // Limpiar datos al cerrar sesión
           setUserProfile(null);
           setOverallProgress(0);
         }
@@ -60,35 +91,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  // Nuevo useEffect para cargar datos del perfil y progreso
+  // useEffect ahora solo llama a la función de recarga
   useEffect(() => {
-    if (user?.id) {
-      const fetchData = async () => {
-        // Fetch user profile
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('full_name, work_area, profile_completed')
-          .eq('id', user.id)
-          .single();
-        setUserProfile(profile);
-
-        // Fetch and calculate overall progress
-        const { data: progressData } = await supabase
-          .from('user_progress')
-          .select('class_id')
-          .eq('user_id', user.id)
-          .eq('completed', true);
-
-        const { count: totalClassesCount } = await supabase
-          .from('classes')
-          .select('id', { count: 'exact' });
-
-        if (progressData && totalClassesCount && totalClassesCount > 0) {
-          const progressPercentage = (progressData.length / totalClassesCount) * 100;
-          setOverallProgress(progressPercentage);
-        }
-      };
-      fetchData();
+    if (user) {
+      refreshUserData();
     }
   }, [user]);
 
@@ -138,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     userProfile,
     overallProgress,
+    refreshUserData,
     signIn,
     signUp,
     signOut,

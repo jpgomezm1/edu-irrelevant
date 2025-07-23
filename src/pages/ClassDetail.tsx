@@ -86,7 +86,7 @@ export const ClassDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [markingComplete, setMarkingComplete] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const { user, userProfile: contextUserProfile, overallProgress } = useAuth();
+  const { user, userProfile: contextUserProfile, overallProgress, refreshUserData } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -259,14 +259,17 @@ export const ClassDetail: React.FC = () => {
 
       if (error) throw error;
 
-      setUserProgress({ completed: true });
-      toast({
-        title: '¡Clase completada!',
-        description: 'Has completado esta clase exitosamente.',
-      });
+    setUserProgress({ completed: true });
+    toast({
+      title: '¡Clase completada!',
+      description: 'Has completado esta clase exitosamente.',
+    });
 
-      // 2. Verificar si se ha completado un curso o el track entero
-      await checkAndProcessCompletions();
+    // Actualizar el progreso general en tiempo real
+    await refreshUserData();
+
+    // 2. Verificar si se ha completado un curso o el track entero
+    await checkAndProcessCompletions();
 
     } catch (error) {
       toast({
