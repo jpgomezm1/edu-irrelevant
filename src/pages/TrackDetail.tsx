@@ -290,85 +290,128 @@ export const TrackDetail: React.FC = () => {
             )}
           </div>
           
-          <div className="space-y-4">
-            {classes.map((classItem, index) => {
-              const isCompleted = getClassProgress(classItem.id);
-              
-              return (
-                <motion.div
-                  key={classItem.id}
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 * index }}
-                >
-                  <Card 
-                    className="cursor-pointer bg-background/60 backdrop-blur-sm border border-white/20 hover:border-white/30 transition-all duration-300 group shadow-lg hover:shadow-xl"
-                    onClick={() => handleClassClick(classItem.id)}
+          <div className="space-y-8">
+            {(() => {
+              // Agrupar clases por curso basado en la descripción
+              const groupedClasses = classes.reduce((acc, classItem, index) => {
+                const courseTitle = classItem.description;
+                if (!acc[courseTitle]) {
+                  acc[courseTitle] = [];
+                }
+                acc[courseTitle].push({ ...classItem, globalIndex: index });
+                return acc;
+              }, {} as Record<string, (Class & { globalIndex: number })[]>);
+
+              return Object.entries(groupedClasses).map(([courseTitle, courseClasses], courseIndex) => (
+                <div key={courseTitle} className="space-y-4">
+                  {/* Course Header */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 * courseIndex }}
+                    className="mb-6"
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        {/* Status Icon */}
-                        <div className="flex-shrink-0 mt-1">
-                          {isCompleted ? (
-                            <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                              <CheckCircle className="h-5 w-5 text-green-500" />
-                            </div>
-                          ) : (
-                            <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-                              <Play className="h-4 w-4 text-primary ml-0.5" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
-                                {classItem.title}
-                              </h3>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-4 w-4" />
-                                  {classItem.duration_minutes} minutos
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span className="w-2 h-2 bg-primary rounded-full"></span>
-                                  Clase #{index + 1}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {isCompleted && (
-                              <Badge className="bg-green-500/15 text-green-600 border-green-500/30">
-                                Completada
-                              </Badge>
-                            )}
-                          </div>
-                          
-                          <p className="text-muted-foreground mb-4 leading-relaxed">
-                            {classItem.description}
-                          </p>
-                          
-                          {/* Tools */}
-                          {classItem.tools_used.length > 0 && (
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground">Herramientas:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {classItem.tools_used.map((tool) => (
-                                  <Badge key={tool} variant="outline" className="bg-muted/20 text-xs border-muted-foreground/30">
-                                    {tool}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                    <div className="flex items-center gap-4 mb-4">
+                      <div 
+                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg"
+                        style={{ backgroundColor: track.color }}
+                      >
+                        {courseIndex + 1}
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+                      <div>
+                        <h3 className="text-2xl font-bold text-foreground">
+                          {courseTitle}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          {courseClasses.length} clases • {courseClasses.reduce((acc, cls) => acc + cls.duration_minutes, 0)} minutos
+                        </p>
+                      </div>
+                    </div>
+                    <div 
+                      className="h-px w-full opacity-30"
+                      style={{ backgroundColor: track.color }}
+                    />
+                  </motion.div>
+
+                  {/* Course Classes */}
+                  <div className="space-y-3 ml-16">
+                    {courseClasses.map((classItem) => {
+                      const isCompleted = getClassProgress(classItem.id);
+                      
+                      return (
+                        <motion.div
+                          key={classItem.id}
+                          initial={{ opacity: 0, x: -30 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.1 * classItem.globalIndex }}
+                        >
+                          <Card 
+                            className="cursor-pointer bg-background/60 backdrop-blur-sm border border-white/20 hover:border-white/30 transition-all duration-300 group shadow-lg hover:shadow-xl"
+                            onClick={() => handleClassClick(classItem.id)}
+                          >
+                            <CardContent className="p-5">
+                              <div className="flex items-start gap-4">
+                                {/* Status Icon */}
+                                <div className="flex-shrink-0 mt-1">
+                                  {isCompleted ? (
+                                    <div className="w-7 h-7 bg-green-500/20 rounded-full flex items-center justify-center">
+                                      <CheckCircle className="h-4 w-4 text-green-500" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-7 h-7 bg-primary/20 rounded-full flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                                      <Play className="h-3.5 w-3.5 text-primary ml-0.5" />
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="flex-1">
+                                  <div className="flex items-start justify-between mb-2">
+                                    <div>
+                                      <h4 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
+                                        {classItem.title}
+                                      </h4>
+                                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                        <div className="flex items-center gap-1">
+                                          <Clock className="h-3.5 w-3.5" />
+                                          {classItem.duration_minutes} minutos
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+                                          Clase #{classItem.order_index}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    {isCompleted && (
+                                      <Badge className="bg-green-500/15 text-green-600 border-green-500/30 text-xs">
+                                        Completada
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Tools */}
+                                  {classItem.tools_used.length > 0 && (
+                                    <div className="mt-3">
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {classItem.tools_used.map((tool) => (
+                                          <Badge key={tool} variant="outline" className="bg-muted/20 text-xs border-muted-foreground/30 py-0 px-2">
+                                            {tool}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ));
+            })()}
           </div>
         </motion.div>
       </main>

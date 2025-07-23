@@ -269,89 +269,161 @@ export const ClassDetail: React.FC = () => {
           </Card>
         </motion.div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Learning Objectives */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-xl text-foreground flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
-                    Lo que aprenderás
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-3">
-                    <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
-                      <BookOpen className="h-5 w-5 text-primary mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-foreground">Conceptos fundamentales</h4>
-                        <p className="text-sm text-muted-foreground">Aplicaciones prácticas y fundamentos teóricos</p>
-                      </div>
+        <div className="space-y-8">
+          {/* Video Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg overflow-hidden">
+              <CardContent className="p-0">
+                <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 aspect-video flex items-center justify-center">
+                  {/* Video placeholder with styling to match the reference */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20"></div>
+                  <div className="relative z-10 text-center">
+                    <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 mx-auto border border-white/30">
+                      <Play className="h-8 w-8 text-white ml-1" />
                     </div>
-                    <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
-                      <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-foreground">Mejores prácticas</h4>
-                        <p className="text-sm text-muted-foreground">Casos de uso reales y estrategias probadas</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
-                      <Lightbulb className="h-5 w-5 text-orange-500 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-foreground">Implementación práctica</h4>
-                        <p className="text-sm text-muted-foreground">Ejercicios paso a paso para aplicar inmediatamente</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Class Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-xl text-foreground">
-                    Contenido de la clase
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="prose prose-sm max-w-none text-muted-foreground">
-                    <p className="text-base leading-relaxed">
-                      Esta es una clase interactiva donde aprenderás sobre {classData.title.toLowerCase()}. 
-                      El contenido incluye ejemplos prácticos y ejercicios que puedes aplicar inmediatamente 
-                      en tu trabajo diario.
+                    <h3 className="text-white text-xl font-semibold mb-2">
+                      {classData.title}
+                    </h3>
+                    <p className="text-white/80 text-sm">
+                      Duración: {classData.duration_minutes} minutos
                     </p>
                   </div>
                   
-                  <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
-                        <Lightbulb className="h-4 w-4 text-primary" />
+                  {/* Overlay effects for modern look */}
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-black/30 text-white border-white/20 backdrop-blur-sm">
+                      🎥 Video Clase
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Resources Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-foreground flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-primary" />
+                      Recursos de la Clase
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-3">
+                      <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg border border-muted/30 hover:border-primary/30 transition-colors group cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
+                            <span className="text-red-500 font-bold text-sm">PDF</span>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                              50 Prompts que te van a ahorrar horas
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              Guía completa con ejemplos prácticos
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="hover:bg-primary/10">
+                          Descargar
+                        </Button>
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">💡 Consejo Pro</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Ten a mano las herramientas mencionadas para poder practicar mientras sigues la clase. 
-                          La práctica activa acelera significativamente tu aprendizaje.
-                        </p>
+                      
+                      <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg border border-muted/30 hover:border-primary/30 transition-colors group cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                            <Lightbulb className="h-5 w-5 text-blue-500" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                              Plantillas de Prompts
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              Formatos listos para usar
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="hover:bg-primary/10">
+                          Ver
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg border border-muted/30 hover:border-primary/30 transition-colors group cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                            <Target className="h-5 w-5 text-green-500" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                              Ejercicios Prácticos
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              Actividades para aplicar lo aprendido
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="hover:bg-primary/10">
+                          Practicar
+                        </Button>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Learning Objectives */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Card className="bg-background/60 backdrop-blur-sm border border-white/20 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-foreground flex items-center gap-2">
+                      <Target className="h-5 w-5 text-primary" />
+                      Lo que aprenderás
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-3">
+                      <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
+                        <BookOpen className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-foreground">Conceptos fundamentales</h4>
+                          <p className="text-sm text-muted-foreground">Aplicaciones prácticas y fundamentos teóricos</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
+                        <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-foreground">Mejores prácticas</h4>
+                          <p className="text-sm text-muted-foreground">Casos de uso reales y estrategias probadas</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
+                        <Lightbulb className="h-5 w-5 text-orange-500 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-foreground">Implementación práctica</h4>
+                          <p className="text-sm text-muted-foreground">Ejercicios paso a paso para aplicar inmediatamente</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
@@ -422,6 +494,7 @@ export const ClassDetail: React.FC = () => {
                 </CardContent>
               </Card>
             </motion.div>
+            </div>
           </div>
         </div>
 
