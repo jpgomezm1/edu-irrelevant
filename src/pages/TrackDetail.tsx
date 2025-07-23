@@ -59,6 +59,14 @@ const trackCourses = {
     { title: 'Curso 3: Finanzas sin trauma (ni fórmulas del demonio)', classCount: 5 },
     { title: 'Curso 4: Atención al cliente que no da pena', classCount: 5 },
     { title: 'Curso 5: Operaciones sin drama (ni correos eternos)', classCount: 5 },
+  ],
+  // ID del Track 'Workflows que valen más que un empleado'
+  'b71a930c-ee4c-46fc-9be2-863283f87b59': [
+    { title: 'Curso 1 (n8n): "Responder leads automáticamente por WhatsApp (y hacer seguimiento)"', classCount: 5 },
+    { title: 'Curso 2 (n8n): "Generar certificados laborales automáticos desde un correo"', classCount: 5 },
+    { title: 'Curso 3 (Make): "Flujo de agendamiento con seguimiento automático"', classCount: 5 },
+    { title: 'Curso 4 (Gumloop): "Dashboard de ventas automático (sin saber BI)"', classCount: 5 },
+    { title: 'Curso 5 (Zapier): "Bot de atención básica 24/7 con FAQs y captura de datos"', classCount: 5 },
   ]
 };
 
