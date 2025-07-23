@@ -66,20 +66,11 @@ const HeroSection = () => {
            animate={inView ? "animate" : "initial"}
            className="space-y-8 lg:pr-8"
          >
-           {/* Warning Badge - Mejorado */}
-           <motion.div variants={fadeInLeft}>
-             <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-background/80 border-2 border-orange-500/50 rounded-full text-sm backdrop-blur-md shadow-lg">
-               <div className="flex items-center justify-center w-6 h-6 bg-orange-500/20 rounded-full">
-                 <AlertTriangle className="w-3.5 h-3.5 text-orange-400" />
-               </div>
-               <span className="font-semibold text-orange-200">La IA no te va a reemplazar...</span>
-             </div>
-           </motion.div>
 
            {/* Headlines */}
            <motion.div variants={fadeInLeft} className="space-y-6">
              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
-               <span className="text-foreground">...pero sí quien</span>
+               <span className="text-foreground">La IA no te va a reemplazar...pero sí alguien que</span>
                <br />
                <span className="text-foreground">la use</span>{" "}
                <span className="bg-gradient-primary bg-clip-text text-transparent">
