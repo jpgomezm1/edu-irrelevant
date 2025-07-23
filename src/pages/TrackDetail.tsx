@@ -75,6 +75,14 @@ const trackCourses = {
     { title: 'Curso 3: "Cursor: programá como si tuvieras un copiloto que sí sabe"', classCount: 5 },
     { title: 'Curso 4: "Replit: tu laboratorio de experimentos sin instalar nada"', classCount: 5 },
     { title: 'Curso 5: "Construí una mini app real desde cero (sí, vos)"', classCount: 5 },
+  ],
+  // ID del Track 'Construí vainas útiles con Vibe Coding'
+  '562e6e60-0ccd-4733-8ff3-a9ab0b38a3b1': [
+    { title: 'Curso 1: Bot que responde correos por vos (modo pro)', classCount: 5 },
+    { title: 'Curso 2: Generador de cotizaciones inteligente', classCount: 5 },
+    { title: 'Curso 3: Scraper + analizador de reseñas de productos', classCount: 5 },
+    { title: 'Curso 4: Asistente tipo ChatGPT con tu info personal', classCount: 5 },
+    { title: 'Curso 5: Dashboard financiero que lee tus movimientos y te da insights', classCount: 5 },
   ]
 };
 
