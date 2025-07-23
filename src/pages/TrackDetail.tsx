@@ -10,7 +10,8 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as Icons from 'lucide-react';
-import { ArrowLeft, Clock, Play, CheckCircle, Target, BookOpen, TrendingUp, Award } from 'lucide-react';
+import { ArrowLeft, Clock, Play, CheckCircle, Target, BookOpen, TrendingUp, Award, Lock } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Track {
   id: string;
@@ -27,6 +28,7 @@ interface Class {
   duration_minutes: number;
   tools_used: string[];
   order_index: number;
+  is_coming_soon: boolean;
 }
 
 interface UserProgress {
@@ -207,8 +209,10 @@ export const TrackDetail: React.FC = () => {
     .filter(cls => !getClassProgress(cls.id))
     .reduce((acc, cls) => acc + cls.duration_minutes, 0);
 
-  const handleClassClick = (classId: string) => {
-    navigate(`/class/${classId}`);
+  const handleClassClick = (classId: string, isComingSoon: boolean = false) => {
+    if (!isComingSoon) {
+      navigate(`/class/${classId}`);
+    }
   };
 
   const formatTime = (minutes: number) => {
@@ -465,6 +469,7 @@ export const TrackDetail: React.FC = () => {
                     <div className="space-y-3 ml-16">
                       {courseClasses.map((classItem) => {
                         const isCompleted = getClassProgress(classItem.id);
+                        const isComingSoon = classItem.is_coming_soon;
                         
                         return (
                           <motion.div
@@ -474,13 +479,22 @@ export const TrackDetail: React.FC = () => {
                             transition={{ duration: 0.4, delay: 0.1 * classItem.globalIndex }}
                           >
                             <Card 
-                              className="cursor-pointer bg-background/60 backdrop-blur-sm border border-white/20 hover:border-white/30 transition-all duration-300 group shadow-lg hover:shadow-xl"
-                              onClick={() => handleClassClick(classItem.id)}
+                              className={cn(
+                                "bg-background/60 backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg",
+                                isComingSoon 
+                                  ? "opacity-60 cursor-not-allowed group-hover:border-white/20" 
+                                  : "cursor-pointer hover:border-white/30 hover:shadow-xl"
+                              )}
+                              onClick={() => handleClassClick(classItem.id, isComingSoon)}
                             >
                               <CardContent className="p-5">
                                 <div className="flex items-start gap-4">
                                   <div className="flex-shrink-0 mt-1">
-                                    {isCompleted ? (
+                                    {isComingSoon ? (
+                                      <div className="w-7 h-7 bg-gray-500/20 rounded-full flex items-center justify-center">
+                                        <Lock className="h-4 w-4 text-gray-500" />
+                                      </div>
+                                    ) : isCompleted ? (
                                       <div className="w-7 h-7 bg-green-500/20 rounded-full flex items-center justify-center">
                                         <CheckCircle className="h-4 w-4 text-green-500" />
                                       </div>
@@ -509,7 +523,11 @@ export const TrackDetail: React.FC = () => {
                                         </div>
                                       </div>
                                       
-                                      {isCompleted && (
+                                      {isComingSoon ? (
+                                        <Badge variant="outline" className="bg-gray-500/10 text-gray-500 border-gray-500/20 text-xs">
+                                          Próximamente
+                                        </Badge>
+                                      ) : isCompleted && (
                                         <Badge className="bg-green-500/15 text-green-600 border-green-500/30 text-xs">
                                           Completada
                                         </Badge>
@@ -574,28 +592,44 @@ export const TrackDetail: React.FC = () => {
                            </div>
                          </div>
                          
-                         {/* Course Certificate Button */}
-                         {(() => {
-                           const courseCompleted = courseClasses.every(cls => getClassProgress(cls.id));
-                           const certificateEarned = earnedCertificates.some(c => c.course_title === course.title);
-                           
-                           if (courseCompleted) {
-                             return (
-                               <Button 
-                                 variant="outline" 
-                                 size="sm" 
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleDownloadCertificate(course.title);
-                                 }}
-                               >
-                                 <Award className="w-4 h-4 mr-2" />
-                                 {certificateEarned ? 'Descargar Certificado' : 'Obtener Certificado'}
-                               </Button>
-                             );
-                           }
-                           return null;
-                         })()}
+                          {/* Course Certificate Button */}
+                          {(() => {
+                            // Only consider non-coming-soon classes for completion
+                            const availableClasses = courseClasses.filter(cls => !cls.is_coming_soon);
+                            const courseCompleted = availableClasses.length > 0 && availableClasses.every(cls => getClassProgress(cls.id));
+                            const certificateEarned = earnedCertificates.some(c => c.course_title === course.title);
+                            const hasComingSoonClasses = courseClasses.some(cls => cls.is_coming_soon);
+                            
+                            if (courseCompleted) {
+                              return (
+                                <div className="flex items-center gap-2">
+                                  {hasComingSoonClasses && (
+                                    <Badge variant="outline" className="bg-gray-500/10 text-gray-500 border-gray-500/20 text-xs">
+                                      Próximamente
+                                    </Badge>
+                                  )}
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDownloadCertificate(course.title);
+                                    }}
+                                  >
+                                    <Award className="w-4 h-4 mr-2" />
+                                    {certificateEarned ? 'Descargar Certificado' : 'Obtener Certificado'}
+                                  </Button>
+                                </div>
+                              );
+                            } else if (hasComingSoonClasses && availableClasses.length === 0) {
+                              return (
+                                <Badge variant="outline" className="bg-gray-500/10 text-gray-500 border-gray-500/20">
+                                  Próximamente
+                                </Badge>
+                              );
+                            }
+                            return null;
+                          })()}
                        </div>
                       <div 
                         className="h-px w-full opacity-30"
@@ -607,6 +641,7 @@ export const TrackDetail: React.FC = () => {
                     <div className="space-y-3 ml-16">
                       {courseClasses.map((classItem, classIndexInCourse) => {
                         const isCompleted = getClassProgress(classItem.id);
+                        const isComingSoon = classItem.is_coming_soon;
                         const globalIndex = courseIndex * course.classCount + classIndexInCourse;
                         
                         return (
@@ -617,14 +652,23 @@ export const TrackDetail: React.FC = () => {
                             transition={{ duration: 0.4, delay: 0.1 * globalIndex }}
                           >
                             <Card 
-                              className="cursor-pointer bg-background/60 backdrop-blur-sm border border-white/20 hover:border-white/30 transition-all duration-300 group shadow-lg hover:shadow-xl"
-                              onClick={() => handleClassClick(classItem.id)}
+                              className={cn(
+                                "bg-background/60 backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg",
+                                isComingSoon 
+                                  ? "opacity-60 cursor-not-allowed group-hover:border-white/20" 
+                                  : "cursor-pointer hover:border-white/30 hover:shadow-xl"
+                              )}
+                              onClick={() => handleClassClick(classItem.id, isComingSoon)}
                             >
                               <CardContent className="p-5">
                                 <div className="flex items-start gap-4">
                                   {/* Status Icon */}
                                   <div className="flex-shrink-0 mt-1">
-                                    {isCompleted ? (
+                                    {isComingSoon ? (
+                                      <div className="w-7 h-7 bg-gray-500/20 rounded-full flex items-center justify-center">
+                                        <Lock className="h-4 w-4 text-gray-500" />
+                                      </div>
+                                    ) : isCompleted ? (
                                       <div className="w-7 h-7 bg-green-500/20 rounded-full flex items-center justify-center">
                                         <CheckCircle className="h-4 w-4 text-green-500" />
                                       </div>
@@ -653,7 +697,11 @@ export const TrackDetail: React.FC = () => {
                                         </div>
                                       </div>
                                       
-                                      {isCompleted && (
+                                      {isComingSoon ? (
+                                        <Badge variant="outline" className="bg-gray-500/10 text-gray-500 border-gray-500/20 text-xs">
+                                          Próximamente
+                                        </Badge>
+                                      ) : isCompleted && (
                                         <Badge className="bg-green-500/15 text-green-600 border-green-500/30 text-xs">
                                           Completada
                                         </Badge>

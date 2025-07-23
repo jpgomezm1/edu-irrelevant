@@ -16,6 +16,7 @@ interface Track {
  icon_name: string;
  color: string;
  order_index: number;
+ is_coming_soon: boolean;
 }
 
 interface ClassProgress {
@@ -330,17 +331,18 @@ export const Dashboard: React.FC = () => {
                    ease: "easeOut"
                  }}
                >
-                 <TrackCard
-                   id={track.id}
-                   name={track.name}
-                   description={track.description}
-                   iconName={track.icon_name}
-                   color={track.color}
-                   progress={trackProgressData.progress}
-                   totalClasses={trackProgressData.totalClasses}
-                   completedClasses={trackProgressData.completedClasses}
-                   estimatedTime={trackProgressData.estimatedTime}
-                 />
+                  <TrackCard
+                    id={track.id}
+                    name={track.name}
+                    description={track.description}
+                    iconName={track.icon_name}
+                    color={track.color}
+                    progress={trackProgressData.progress}
+                    totalClasses={trackProgressData.totalClasses}
+                    completedClasses={trackProgressData.completedClasses}
+                    estimatedTime={trackProgressData.estimatedTime}
+                    isComingSoon={track.is_coming_soon}
+                  />
                </motion.div>
              );
            })}

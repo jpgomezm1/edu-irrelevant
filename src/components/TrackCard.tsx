@@ -18,6 +18,7 @@ interface TrackCardProps {
   totalClasses: number;
   completedClasses: number;
   estimatedTime: number;
+  isComingSoon?: boolean;
 }
 
 export const TrackCard: React.FC<TrackCardProps> = ({
@@ -29,7 +30,8 @@ export const TrackCard: React.FC<TrackCardProps> = ({
   progress,
   totalClasses,
   completedClasses,
-  estimatedTime
+  estimatedTime,
+  isComingSoon = false
 }) => {
   const navigate = useNavigate();
   
@@ -37,11 +39,20 @@ export const TrackCard: React.FC<TrackCardProps> = ({
   const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<any>;
 
   const handleClick = () => {
-    navigate(`/track/${id}`);
+    if (!isComingSoon) {
+      navigate(`/track/${id}`);
+    }
   };
 
   const getStatusBadge = () => {
-    if (progress === 100) {
+    if (isComingSoon) {
+      return (
+        <Badge variant="outline" className="bg-gray-500/10 text-gray-500 border-gray-500/20">
+          <Clock className="w-3 h-3 mr-1" />
+          Próximamente
+        </Badge>
+      );
+    } else if (progress === 100) {
       return (
         <Badge className="bg-green-500/10 text-green-600 border-green-500/20 hover:bg-green-500/20">
           <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -79,8 +90,11 @@ export const TrackCard: React.FC<TrackCardProps> = ({
     >
       <Card 
         className={cn(
-          "cursor-pointer bg-background/60 backdrop-blur-sm border border-white/25 hover:border-white/35 transition-all duration-300",
-          "group relative overflow-hidden hover:shadow-2xl"
+          "bg-background/60 backdrop-blur-sm border border-white/25 transition-all duration-300",
+          "group relative overflow-hidden",
+          isComingSoon 
+            ? "opacity-50 cursor-not-allowed" 
+            : "cursor-pointer hover:border-white/35 hover:shadow-2xl"
         )}
         onClick={handleClick}
       >
@@ -129,53 +143,63 @@ export const TrackCard: React.FC<TrackCardProps> = ({
           </div>
 
           {/* Stats */}
-          <div className="flex items-center justify-between mb-4 text-sm">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{completedClasses}/{totalClasses} clases</span>
-              </div>
-              {estimatedTime > 0 && (
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <Clock className="w-4 h-4" />
-                  <span>{formatTime(estimatedTime)} restantes</span>
+          {isComingSoon ? (
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground">Contenido en preparación</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-4 text-sm">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{completedClasses}/{totalClasses} clases</span>
+                  </div>
+                  {estimatedTime > 0 && (
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                      <Clock className="w-4 h-4" />
+                      <span>{formatTime(estimatedTime)} restantes</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          {/* Progress bar */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">Progreso</span>
-              <span 
-                className="text-sm font-bold"
-                style={{ color }}
-              >
-                {Math.round(progress)}%
-              </span>
-            </div>
-            <div className="relative">
-              <Progress 
-                value={progress} 
-                className="h-2.5 bg-muted/50"
-              />
-              <div 
-                className="absolute top-0 left-0 h-2.5 rounded-full transition-all duration-500 ease-out"
-                style={{
-                  background: `linear-gradient(90deg, ${color}, ${color}80)`,
-                  width: `${progress}%`
-                }}
-              />
-            </div>
-          </div>
+              {/* Progress bar */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">Progreso</span>
+                  <span 
+                    className="text-sm font-bold"
+                    style={{ color }}
+                  >
+                    {Math.round(progress)}%
+                  </span>
+                </div>
+                <div className="relative">
+                  <Progress 
+                    value={progress} 
+                    className="h-2.5 bg-muted/50"
+                  />
+                  <div 
+                    className="absolute top-0 left-0 h-2.5 rounded-full transition-all duration-500 ease-out"
+                    style={{
+                      background: `linear-gradient(90deg, ${color}, ${color}80)`,
+                      width: `${progress}%`
+                    }}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Continue button hint */}
-          <div className="mt-4 pt-4 border-t border-border/50">
-            <div className="flex items-center justify-center text-xs text-muted-foreground group-hover:text-primary transition-colors">
-              <span>Hacer clic para {progress > 0 ? 'continuar' : 'comenzar'}</span>
+          {!isComingSoon && (
+            <div className="mt-4 pt-4 border-t border-border/50">
+              <div className="flex items-center justify-center text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                <span>Hacer clic para {progress > 0 ? 'continuar' : 'comenzar'}</span>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>

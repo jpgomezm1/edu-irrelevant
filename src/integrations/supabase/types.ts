@@ -62,6 +62,7 @@ export type Database = {
           description: string
           duration_minutes: number
           id: string
+          is_coming_soon: boolean
           order_index: number
           title: string
           tools_used: string[]
@@ -72,6 +73,7 @@ export type Database = {
           description: string
           duration_minutes: number
           id?: string
+          is_coming_soon?: boolean
           order_index: number
           title: string
           tools_used?: string[]
@@ -82,6 +84,7 @@ export type Database = {
           description?: string
           duration_minutes?: number
           id?: string
+          is_coming_soon?: boolean
           order_index?: number
           title?: string
           tools_used?: string[]
@@ -104,6 +107,7 @@ export type Database = {
           description: string
           icon_name: string
           id: string
+          is_coming_soon: boolean
           name: string
           order_index: number
         }
@@ -113,6 +117,7 @@ export type Database = {
           description: string
           icon_name: string
           id?: string
+          is_coming_soon?: boolean
           name: string
           order_index: number
         }
@@ -122,6 +127,7 @@ export type Database = {
           description?: string
           icon_name?: string
           id?: string
+          is_coming_soon?: boolean
           name?: string
           order_index?: number
         }
