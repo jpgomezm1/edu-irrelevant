@@ -11,6 +11,40 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, Clock, CheckCircle, Play, Target, BookOpen, Lightbulb, Star } from 'lucide-react';
 
+// Track courses structure
+const trackCourses = {
+  "track-1": [
+    { title: "Curso 1: Tu segundo cerebro - Prompts para la captura, organización y síntesis de información", classCount: 5 },
+    { title: "Curso 2: Acelerador de contenido - Prompts para escribir mejor y más rápido", classCount: 6 },
+    { title: "Curso 3: Análisis inteligente - Prompts para análisis de datos y documentos", classCount: 5 }
+  ],
+  "track-2": [
+    { title: "Curso 1: Asistente creativo - Prompts para campañas de marketing", classCount: 6 },
+    { title: "Curso 2: Personalizador de ventas - Prompts para crear mensajes que conecten", classCount: 5 },
+    { title: "Curso 3: Growth hacker - Prompts para hacer crecer tu negocio", classCount: 5 }
+  ],
+  "track-3": [
+    { title: "Curso 1: Tu asistente de recursos humanos - Prompts para el talento humano", classCount: 5 },
+    { title: "Curso 2: Mentor de liderazgo - Prompts para liderar con inteligencia artificial", classCount: 5 },
+    { title: "Curso 3: Facilitador de equipos - Prompts para potenciar equipos de trabajo", classCount: 5 }
+  ],
+  "track-4": [
+    { title: "Curso 1: Consultor estratégico - Prompts para la planeación estratégica", classCount: 5 },
+    { title: "Curso 2: Analista de mercados - Prompts para investigación de mercados", classCount: 5 },
+    { title: "Curso 3: Optimizador de procesos - Prompts para la mejora de procesos", classCount: 5 }
+  ],
+  "track-5": [
+    { title: "Curso 1: Asistente financiero - Prompts para análisis financiero", classCount: 5 },
+    { title: "Curso 2: Evaluador de riesgos - Prompts para evaluación de riesgos", classCount: 5 },
+    { title: "Curso 3: Planificador de inversiones - Prompts para planificación de inversiones", classCount: 5 }
+  ],
+  "track-6": [
+    { title: "Curso 1: Diseñador instruccional - Prompts para crear contenido educativo", classCount: 5 },
+    { title: "Curso 2: Evaluador pedagógico - Prompts para evaluación y retroalimentación", classCount: 5 },
+    { title: "Curso 3: Facilitador de aprendizaje - Prompts para facilitar el aprendizaje", classCount: 5 }
+  ]
+};
+
 interface Class {
   id: string;
   track_id: string;
@@ -37,6 +71,11 @@ interface UserProgress {
   completed: boolean;
 }
 
+interface UserProfile {
+  full_name: string;
+  email: string;
+}
+
 export const ClassDetail: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
   const [classData, setClassData] = useState<Class | null>(null);
@@ -46,6 +85,7 @@ export const ClassDetail: React.FC = () => {
   const [prevClass, setPrevClass] = useState<NavClass | null>(null);
   const [loading, setLoading] = useState(true);
   const [markingComplete, setMarkingComplete] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -101,6 +141,17 @@ export const ClassDetail: React.FC = () => {
           setUserProgress(progressData);
         }
 
+        // Fetch user profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('full_name, email')
+          .eq('id', user.id)
+          .single();
+
+        if (!profileError) {
+          setUserProfile(profileData);
+        }
+
         // Fetch next and previous classes
         const { data: allClasses, error: allClassesError } = await supabase
           .from('classes')
@@ -133,11 +184,70 @@ export const ClassDetail: React.FC = () => {
     fetchClassData();
   }, [classId, user.id, toast, navigate]);
 
+  const checkAndProcessCompletions = async () => {
+    if (!user || !track || !classData) return;
+
+    // Obtener todas las clases y el progreso del track actual
+    const { data: trackClasses } = await supabase.from('classes').select('id, order_index').eq('track_id', track.id);
+    const { data: userProgressForTrack } = await supabase.from('user_progress').select('class_id').eq('user_id', user.id).eq('completed', true).in('class_id', trackClasses?.map(c => c.id) || []);
+
+    if (!trackClasses || !userProgressForTrack) return;
+
+    const completedClassIds = new Set(userProgressForTrack.map(p => p.class_id));
+    const coursesInTrack = trackCourses[track.id as keyof typeof trackCourses] || [];
+    let classStartIndex = 0;
+
+    // Verificar cada curso del track
+    for (const course of coursesInTrack) {
+      const courseClasses = trackClasses.slice(classStartIndex, classStartIndex + course.classCount);
+      const allCourseClassesCompleted = courseClasses.every(c => completedClassIds.has(c.id));
+
+      if (allCourseClassesCompleted) {
+        // Verificar si ya se emitió certificado para este curso
+        const { data: existingCourseCert } = await supabase.from('certificates').select('id').eq('user_id', user.id).eq('track_id', track.id).eq('course_title', course.title).maybeSingle();
+
+        if (!existingCourseCert) {
+          // Si no existe, crearlo y enviar correo
+          await supabase.from('certificates').insert({
+            user_id: user.id,
+            track_id: track.id,
+            course_title: course.title,
+            certificate_type: 'course',
+          });
+          await supabase.functions.invoke('send-certificate-email', {
+            body: { userId: user.id, trackId: track.id, userEmail: user.email, courseTitle: course.title },
+          });
+          toast({ title: `¡Curso "${course.title}" completado!`, description: 'Te hemos enviado tu certificado por correo.' });
+        }
+      }
+      classStartIndex += course.classCount;
+    }
+
+    // Verificar si el track completo está finalizado
+    if (completedClassIds.size === trackClasses.length) {
+      const { data: existingTrackCert } = await supabase.from('certificates').select('id').eq('user_id', user.id).eq('track_id', track.id).eq('certificate_type', 'track').maybeSingle();
+
+      if (!existingTrackCert) {
+        // Si no existe, crearlo y enviar correo
+        await supabase.from('certificates').insert({
+          user_id: user.id,
+          track_id: track.id,
+          certificate_type: 'track',
+        });
+        await supabase.functions.invoke('send-certificate-email', {
+          body: { userId: user.id, trackId: track.id, userEmail: user.email },
+        });
+        toast({ title: `¡Track "${track.name}" completado!`, description: '¡Felicidades! Tu certificado ha sido enviado a tu correo.' });
+      }
+    }
+  };
+
   const handleMarkComplete = async () => {
-    if (!classData || markingComplete) return;
+    if (!classData || !user || markingComplete) return;
 
     setMarkingComplete(true);
     try {
+      // 1. Marcar la clase actual como completada
       const { error } = await supabase
         .from('user_progress')
         .upsert({
@@ -147,23 +257,21 @@ export const ClassDetail: React.FC = () => {
           completed_at: new Date().toISOString(),
         });
 
-      if (error) {
-        toast({
-          title: 'Error',
-          description: 'No se pudo marcar la clase como completada',
-          variant: 'destructive',
-        });
-      } else {
-        setUserProgress({ completed: true });
-        toast({
-          title: '¡Clase completada!',
-          description: 'Has completado esta clase exitosamente',
-        });
-      }
+      if (error) throw error;
+
+      setUserProgress({ completed: true });
+      toast({
+        title: '¡Clase completada!',
+        description: 'Has completado esta clase exitosamente.',
+      });
+
+      // 2. Verificar si se ha completado un curso o el track entero
+      await checkAndProcessCompletions();
+
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Hubo un problema al marcar la clase como completada',
+        description: 'No se pudo marcar la clase como completada.',
         variant: 'destructive',
       });
     } finally {
