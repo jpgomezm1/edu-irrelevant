@@ -51,6 +51,14 @@ const trackCourses = {
     { title: 'Curso 3: Análisis sin Excel (ni trauma)', classCount: 5 },
     { title: 'Curso 4: Automatiza o muere (la era del click está acabando)', classCount: 5 },
     { title: 'Curso 5: LLMs sin paja (cuál IA usar y para qué)', classCount: 5 },
+  ],
+  // ID del Track 'IA para Negocios: Automatización y Estrategia'
+  '0725639f-7272-4e5e-bd51-5021a1cf678f': [
+    { title: 'Curso 1: Vender sin perseguir (ni sonar como robot)', classCount: 5 },
+    { title: 'Curso 2: Marketing que no parece hecho por interns', classCount: 5 },
+    { title: 'Curso 3: Finanzas sin trauma (ni fórmulas del demonio)', classCount: 5 },
+    { title: 'Curso 4: Atención al cliente que no da pena', classCount: 5 },
+    { title: 'Curso 5: Operaciones sin drama (ni correos eternos)', classCount: 5 },
   ]
 };
 
