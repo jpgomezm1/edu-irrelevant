@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as Icons from 'lucide-react';
 import { ArrowLeft, Clock, Play, CheckCircle, Target, BookOpen, TrendingUp, Award, Lock } from 'lucide-react';
+import { FeedbackButton } from '@/components/FeedbackButton';
 import { cn } from '@/lib/utils';
 
 interface Track {
@@ -735,6 +736,8 @@ export const TrackDetail: React.FC = () => {
           </div>
         </motion.div>
       </main>
+      
+      <FeedbackButton />
     </div>
   );
 };

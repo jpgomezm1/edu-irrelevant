@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, Clock, CheckCircle, Play, Target, BookOpen, Lightbulb, Star } from 'lucide-react';
+import { FeedbackButton } from '@/components/FeedbackButton';
 
 // Track courses structure
 const trackCourses = {
@@ -648,6 +649,8 @@ export const ClassDetail: React.FC = () => {
           </div>
         </motion.div>
       </main>
+      
+      <FeedbackButton />
     </div>
   );
 };

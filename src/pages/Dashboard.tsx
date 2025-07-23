@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TrendingUp, Target, Clock, Sparkles } from 'lucide-react';
+import { FeedbackButton } from '@/components/FeedbackButton';
 
 interface Track {
  id: string;
@@ -347,8 +348,10 @@ export const Dashboard: React.FC = () => {
              );
            })}
          </div>
-       </motion.div>
-     </main>
-   </div>
- );
+        </motion.div>
+      </main>
+      
+      <FeedbackButton />
+    </div>
+  );
 };
