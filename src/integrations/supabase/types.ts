@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      certificates: {
+        Row: {
+          certificate_type: string
+          completion_date: string | null
+          course_title: string | null
+          id: string
+          track_id: string | null
+          user_id: string
+        }
+        Insert: {
+          certificate_type: string
+          completion_date?: string | null
+          course_title?: string | null
+          id?: string
+          track_id?: string | null
+          user_id: string
+        }
+        Update: {
+          certificate_type?: string
+          completion_date?: string | null
+          course_title?: string | null
+          id?: string
+          track_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       classes: {
         Row: {
           created_at: string | null

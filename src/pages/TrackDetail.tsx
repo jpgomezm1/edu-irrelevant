@@ -91,7 +91,9 @@ export const TrackDetail: React.FC = () => {
   const [track, setTrack] = useState<Track | null>(null);
   const [classes, setClasses] = useState<Class[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
+  const [earnedCertificates, setEarnedCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -152,6 +154,26 @@ export const TrackDetail: React.FC = () => {
           setUserProgress(progressData || []);
         }
 
+        // Fetch user profile
+        const { data: profileData } = await supabase
+          .from('user_profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        if (profileData) {
+          setUserProfile(profileData);
+        }
+
+        // Fetch earned certificates
+        const { data: certData } = await supabase
+          .from('certificates')
+          .select('course_title, track_id')
+          .eq('user_id', user.id)
+          .eq('track_id', trackId);
+        if (certData) {
+          setEarnedCertificates(certData);
+        }
+
       } catch (error) {
         console.error('Track detail error:', error);
         toast({
@@ -205,6 +227,61 @@ export const TrackDetail: React.FC = () => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
+  };
+
+  const handleDownloadCertificate = async (courseTitle?: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-certificate', {
+        body: { 
+          userId: user.id, 
+          trackName: track?.name,
+          courseTitle,
+          userName: userProfile?.full_name,
+          completionDate: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+        },
+      });
+      if (error) throw error;
+
+      const blob = new Blob([data], { type: 'image/svg+xml' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const fileName = courseTitle 
+        ? `certificado-curso-${courseTitle.replace(/\s+/g, '-')}.svg` 
+        : `certificado-track-${track?.name.replace(/\s+/g, '-')}.svg`;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      // Record certificate in database
+      if (courseTitle) {
+        await supabase.from('certificates').insert({
+          user_id: user.id,
+          track_id: trackId,
+          course_title: courseTitle,
+          certificate_type: 'course'
+        });
+      } else {
+        await supabase.from('certificates').insert({
+          user_id: user.id,
+          track_id: trackId,
+          certificate_type: 'track'
+        });
+      }
+
+      toast({ 
+        title: 'Certificado descargado', 
+        description: 'Tu certificado se ha descargado exitosamente.' 
+      });
+    } catch (e) {
+      toast({ 
+        title: 'Error al descargar', 
+        description: 'No se pudo generar tu certificado.', 
+        variant: 'destructive' 
+      });
+    }
   };
 
   return (
@@ -333,13 +410,21 @@ export const TrackDetail: React.FC = () => {
               </p>
             </div>
             
-            {/* Achievement badge */}
-            {progressPercentage === 100 && (
-              <Badge className="bg-yellow-500/15 text-yellow-600 border-yellow-500/30 px-4 py-2">
-                <Award className="w-4 h-4 mr-2" />
-                Track Completado
-              </Badge>
-            )}
+            {/* Achievement badge and Certificate button */}
+            <div className="flex items-center gap-4">
+              {progressPercentage === 100 && (
+                <>
+                  <Badge className="bg-yellow-500/15 text-yellow-600 border-yellow-500/30 px-4 py-2">
+                    <Award className="w-4 h-4 mr-2" />
+                    Track Completado
+                  </Badge>
+                  <Button onClick={() => handleDownloadCertificate()}>
+                    <Award className="w-4 h-4 mr-2" />
+                    Descargar Certificado del Track
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
           
           <div className="space-y-8">
@@ -482,22 +567,47 @@ export const TrackDetail: React.FC = () => {
                       transition={{ duration: 0.5, delay: 0.1 * courseIndex }}
                       className="mb-6"
                     >
-                      <div className="flex items-center gap-4 mb-4">
-                        <div 
-                          className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg"
-                          style={{ backgroundColor: track.color }}
-                        >
-                          {courseIndex + 1}
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-foreground">
-                            {course.title}
-                          </h3>
-                          <p className="text-muted-foreground">
-                            {courseClasses.length} clases • {courseClasses.reduce((acc, cls) => acc + cls.duration_minutes, 0)} minutos
-                          </p>
-                        </div>
-                      </div>
+                       <div className="flex items-center justify-between mb-4">
+                         <div className="flex items-center gap-4">
+                           <div 
+                             className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg"
+                             style={{ backgroundColor: track.color }}
+                           >
+                             {courseIndex + 1}
+                           </div>
+                           <div>
+                             <h3 className="text-2xl font-bold text-foreground">
+                               {course.title}
+                             </h3>
+                             <p className="text-muted-foreground">
+                               {courseClasses.length} clases • {courseClasses.reduce((acc, cls) => acc + cls.duration_minutes, 0)} minutos
+                             </p>
+                           </div>
+                         </div>
+                         
+                         {/* Course Certificate Button */}
+                         {(() => {
+                           const courseCompleted = courseClasses.every(cls => getClassProgress(cls.id));
+                           const certificateEarned = earnedCertificates.some(c => c.course_title === course.title);
+                           
+                           if (courseCompleted) {
+                             return (
+                               <Button 
+                                 variant="outline" 
+                                 size="sm" 
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleDownloadCertificate(course.title);
+                                 }}
+                               >
+                                 <Award className="w-4 h-4 mr-2" />
+                                 {certificateEarned ? 'Descargar Certificado' : 'Obtener Certificado'}
+                               </Button>
+                             );
+                           }
+                           return null;
+                         })()}
+                       </div>
                       <div 
                         className="h-px w-full opacity-30"
                         style={{ backgroundColor: track.color }}
